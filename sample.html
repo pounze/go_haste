@@ -1,0 +1,193 @@
+<html>
+
+
+  <button onclick="sendMessage()">Send Message</button>
+    <script
+
+        src="https://code.jquery.com/jquery-2.2.4.min.js"
+
+        integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44="
+
+        crossorigin="anonymous"></script>
+
+    <script>
+
+    
+
+        var saveData = $.ajax({
+
+            type: 'POST',
+
+            url: "http://religareonline.com:8000",
+
+            beforeSend: function(request) {
+
+                request.setRequestHeader("Content-Type", "application/json");
+
+            },
+
+            data: JSON.stringify({
+
+                "Login":{
+
+                    "requestPayload":{
+
+                        "username":"sudeep.dasgupta",
+
+                        "password":"kaihiwatari"
+
+                    }
+
+                },
+
+                "GetProfile":{},
+
+                "SchemesMaster":{
+
+                    "requestPayload":{
+
+                        "category":"EQUITY"
+
+                    }
+
+                }
+
+            }),
+
+            success: function(resultData)
+
+            { 
+
+                console.log(resultData)
+
+            }
+
+        });
+
+
+        var wssObj = null;
+        function WebSocketTest()
+
+        {
+
+            if ("WebSocket" in window)
+
+            {               
+
+               // Let us open a web socket
+
+               var ws = new WebSocket("ws://religareonline.com:8000/realtime");
+
+				      wssObj = ws;
+
+               ws.onopen = function()
+
+               {
+
+                  
+
+                  // Web Socket is connected, send data using send()
+
+                  ws.send(
+
+                    JSON.stringify({
+
+                        "Login":{
+
+                            "requestPayload":{
+
+                                "username":"sudeep.dasgupta",
+
+                                "password":"kaihiwatari"
+
+                            }
+
+                        },
+
+                        "GetProfile":{},
+
+                        "SchemesMaster":{
+
+                            "requestPayload":{
+
+                                "category":"EQUITY"
+
+                            }
+
+                        }
+
+                    })
+
+                  );
+
+               };
+
+				
+
+               ws.onmessage = function (evt)
+
+               { 
+
+                  var received_msg = evt.data;
+
+                  console.log(received_msg);
+
+               };
+
+				
+
+               ws.onclose = function()
+
+               { 
+
+                  
+
+                  // websocket is closed.
+
+                  console.log("Connection is closed..."); 
+
+               };
+
+            } else {
+
+              
+
+               // The browser doesn't support WebSocket
+
+               console.log("WebSocket NOT supported by your Browser!");
+
+            }
+
+         }
+
+
+
+         WebSocketTest();
+
+         function sendMessage()
+         {
+            wssObj.send(
+
+              JSON.stringify({
+                "Login":{
+                  "requestPayload":{
+                    "username":"sudeep.dasgupta",
+                    "password":"kaihiwatari"
+                  }
+                },
+                "GetProfile":{},
+                "SchemesMaster":{
+                  "requestPayload":{
+                    "category":"EQUITY"
+                  }
+                }
+              })
+
+            );
+         }
+
+
+
+    </script>
+
+</html>

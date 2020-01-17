@@ -1,0 +1,7 @@
+package controllers
+
+import "fmt"
+
+func Init() { 
+	fmt.Printf("Hello world") 
+}
