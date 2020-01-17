@@ -25,6 +25,13 @@ Features:
 
 ###########################################################################################################################
 
+For Projection api Websocket Gorilla is needed. It is open source and very powerfull websocket library in golang.
+To download write the command in the root directory
+go get github.com/gorilla/websocket
+
+To set configuration for database and everything
+/src/cns/Config.go
+
 Basic Routes  
 
 Server.go
