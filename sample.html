@@ -18,7 +18,7 @@
 
             type: 'POST',
 
-            url: "http://religareonline.com:8000",
+            url: "http://localhost:8000",
 
             beforeSend: function(request) {
 
@@ -76,7 +76,7 @@
 
                // Let us open a web socket
 
-               var ws = new WebSocket("ws://religareonline.com:8000/realtime");
+               var ws = new WebSocket("ws://localhost:8000/realtime");
 
 				      wssObj = ws;
 

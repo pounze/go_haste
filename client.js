@@ -1,9 +1,7 @@
 const http2 = require('http2');
 const fs = require('fs');
-
-const client = http2.connect('https://religareonline.com:8100', {
-  ca: fs.readFileSync('./ssl/Certificate.cer')
-});
+process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = 0
+const client = http2.connect('https://localhost:8100');
 
 var buffer = JSON.stringify({
 

@@ -17,7 +17,7 @@ func main(){
 		defer cns.CreateHttpServer(":8000")
 	}()
 
-	defer cns.CreateHttpStreaming(":8100", "./ssl/Certificate.cer","./ssl/Religare.key", "/streaming")
+	defer cns.CreateHttpStreaming(":8100", "./ssl/https-server.crt","./ssl/https-server.key", "/streaming")
 
 	defer httpApp.DefaultMethod(func(req *http.Request,res http.ResponseWriter){
 		res.Header().Set("Name", "Sudeep Dasgupta")
