@@ -879,16 +879,24 @@ type Projection struct {
 	Timeout int32
 }
 
+// creating hashmap for projection schema
+
 var projectHM = map[string]Projection{}
+
+// setting schema
 
 func (v *Http) CreateSchema(projectMap map[string]Projection){
 	projectHM = projectMap
 }
 
+// default response structure
+
 type DefaultResponse struct {
     Status bool `json:"status"`
     Msg string `json:"msg"`
 }
+
+// method to check if channel is closed before sending message
 
 func IsClosed(ch chan interface{}) bool {
 	select {
@@ -900,17 +908,27 @@ func IsClosed(ch chan interface{}) bool {
 	return false
 }
 
+// send message method is used in projection api to send message over the channels
+
 func SendMsg(ch chan interface{}, class interface{}){
 	if(!IsClosed(ch)){
 		ch <- class
 	}
 }
 
+// project method for http/1.1
+
 func (v *Http) ProjectionMethod(req *http.Request,res http.ResponseWriter){
+
+	// creating hashmap for response
 
 	var responseHashMap = make(map[string]interface{})
 
+	// creating another hashmap to parse request json 
+
 	requestHM := make(map[string]interface{})
+
+	// decoding json request
 
 	err := json.NewDecoder(req.Body).Decode(&requestHM)
 
@@ -925,11 +943,17 @@ func (v *Http) ProjectionMethod(req *http.Request,res http.ResponseWriter){
         return
     }
 
+    // iterating over all the request schema in the request payload
+
 	for key, _ := range requestHM{
 
 		if _, ok := projectHM[key]; ok {
 
+			// creating channels for callback
+
 		    callbackChan := make(chan interface{})
+
+		    // setting timeout for context
 
 			timeoutTime := rand.Int31n(projectHM[key].Timeout)
 
@@ -937,7 +961,11 @@ func (v *Http) ProjectionMethod(req *http.Request,res http.ResponseWriter){
 
 			defer cancel()
 
+			// invoking method with go routines
+
 	        go projectHM[key].Method(req, res, callbackChan)
+
+	        // checking if context is done
 
 	        select{
 			  case <-ctx.Done():
@@ -950,6 +978,8 @@ func (v *Http) ProjectionMethod(req *http.Request,res http.ResponseWriter){
 			    responseHashMap[key] = callback
 		  	}
 
+		  	// closing the channel
+
 		  	close(callbackChan)
 
 		}else{
@@ -961,15 +991,21 @@ func (v *Http) ProjectionMethod(req *http.Request,res http.ResponseWriter){
 		}
     }
 
+    // sending the http response
+
     jsonData, _ := json.Marshal(responseHashMap)
 
     res.Write([]byte(jsonData))
 }
 
+// set route path to set projection url
+
 func (v *Http) SetRoutePath(path string) ChainAndError{
 	v.Post(path, v.ProjectionMethod)
 	return ChainAndError{v, nil}
 }
+
+// creating upgrader object for the gorilla websocket
 
 var upgrader = websocket.Upgrader{
 	CheckOrigin: func(r *http.Request) bool {
@@ -977,7 +1013,11 @@ var upgrader = websocket.Upgrader{
 	},
 }
 
+// method to handle socket projection request
+
 func (v *Http) SocketProjection(res http.ResponseWriter, req *http.Request){
+
+	// upgrade method to upgrade http to websocket
 
 	con, err := upgrader.Upgrade(res, req, nil)
 	
@@ -985,9 +1025,14 @@ func (v *Http) SocketProjection(res http.ResponseWriter, req *http.Request){
 		return
 	}
 
+	// closing the socket connection
+
 	defer con.Close()
 	
 	for {
+
+
+		// reading messages from sockets
 
 		mt, message, err := con.ReadMessage()
 		
@@ -995,7 +1040,11 @@ func (v *Http) SocketProjection(res http.ResponseWriter, req *http.Request){
 			break
 		}
 
+		// creating hashmap  for parsing the request
+
 		requestHM := make(map[string]interface{})
+
+		// creating object from json string
 
 		jsonError := json.Unmarshal(message, &requestHM)
 
@@ -1014,19 +1063,27 @@ func (v *Http) SocketProjection(res http.ResponseWriter, req *http.Request){
 			}
 	    }
 
+	    // iterating over the json object
+
 	    for key, _ := range requestHM{
 
 	    	var responseHashMap = make(map[string]interface{})
 	    	
 			if _, ok := projectHM[key]; ok {
 
+				// creating channel to get the response
+
 			    callbackChan := make(chan interface{})
+
+			    // setting context timeout
 
 				timeoutTime := rand.Int31n(projectHM[key].Timeout)
 
 				ctx, cancel := context.WithTimeout(context.Background(), time.Duration(timeoutTime) * time.Millisecond)
 
 				defer cancel()
+
+				// invoking method for matched method from request payload
 
 		        go projectHM[key].Method(req, res, callbackChan)
 
@@ -1041,6 +1098,8 @@ func (v *Http) SocketProjection(res http.ResponseWriter, req *http.Request){
 				    responseHashMap[key] = callback
 			  	}
 
+			  	// closing the channel
+
 			  	close(callbackChan)
 
 			}else{
@@ -1050,6 +1109,8 @@ func (v *Http) SocketProjection(res http.ResponseWriter, req *http.Request){
 			    }
 				responseHashMap[key] = responseObject
 			}
+
+			// creating json string and sending as response
 
 			jsonData, _ := json.Marshal(responseHashMap)
 
@@ -1062,6 +1123,8 @@ func (v *Http) SocketProjection(res http.ResponseWriter, req *http.Request){
 		
 	}
 }
+
+// creating socket path for websocket streaming
 
 func (v *Http) SetSocketRoutePath(path string) ChainAndError{
 	
@@ -1081,7 +1144,11 @@ func (v *Http) SetSocketRoutePath(path string) ChainAndError{
 	return ChainAndError{v, nil}
 }
 
+// declaring variable for http2 multiplexing
+
 var muxStream *http.ServeMux
+
+// creating http2 streaming, it has only support with TLS 
 
 func CreateHttpStreaming(hostPort string, crt string, key string, path string){
 	muxStream = http.NewServeMux()
@@ -1103,9 +1170,15 @@ func CreateHttpStreaming(hostPort string, crt string, key string, path string){
 	}))
 }
 
+// handling the http2 streaming
+
 func handleHttpStreaming(res http.ResponseWriter, req *http.Request) {
 
+	// creating hashmap for request parsing
+
 	requestHM := make(map[string]interface{})
+
+	// decoding json string to structure
 
 	err := json.NewDecoder(req.Body).Decode(&requestHM)
 
@@ -1121,19 +1194,29 @@ func handleHttpStreaming(res http.ResponseWriter, req *http.Request) {
         return
     }
 
+    // iterating over the request
+
     for key, _ := range requestHM{
+
+    	// creating response hashmap
 
     	var responseHashMap = make(map[string]interface{})
 
 		if _, ok := projectHM[key]; ok {
 
+			// creating channel for getting response from the invoked methods
+
 		    callbackChan := make(chan interface{})
+
+		    // setting context timeout 
 
 			timeoutTime := rand.Int31n(projectHM[key].Timeout)
 
 			ctx, cancel := context.WithTimeout(context.Background(), time.Duration(timeoutTime) * time.Millisecond)
 
 			defer cancel()
+
+			// invoking methods with goroutines
 
 	        go projectHM[key].Method(req, res, callbackChan)
 
@@ -1148,6 +1231,8 @@ func handleHttpStreaming(res http.ResponseWriter, req *http.Request) {
 			    responseHashMap[key] = callback
 		  	}
 
+		  	// closing the channel
+
 		  	close(callbackChan)
 
 		}else{
@@ -1157,6 +1242,8 @@ func handleHttpStreaming(res http.ResponseWriter, req *http.Request) {
 		    }
 			responseHashMap[key] = responseObject
 		}
+
+		// creating json string for streaming response with a splitter \r\n\r\n
 
 		jsonData, _ := json.Marshal(responseHashMap)
 		res.Write([]byte(string(jsonData)+"\r\n\r\n"))
