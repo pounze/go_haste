@@ -169,6 +169,13 @@ Web/RouteList.go
 				fmt.Fprintf(res, "Unauthorized")
 			}
 		})
+		
+		// TO call global middleware
+		
+		httpApp.GlobalMiddleWares(func(req *http.Request,res http.ResponseWriter,done chan bool){
+			fmt.Println("working both")
+			done <- true
+		})
 	
 		// creating try catch block to handle exception
 		
