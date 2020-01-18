@@ -56,6 +56,14 @@ Server.go
 		}()
 
 		defer cns.CreateHttpStreaming(":8100", "./ssl/https-server.crt","./ssl/https-server.key", "/streaming")
+		
+		// we can also create https server 
+		
+		defer cns.CreateHttpsServer(":8300", "./ssl/https-server.crt","./ssl/https-server.key", "/")
+		
+		// for http/2 server we write the following code
+		
+		defer cns.CreateHttp2Server(":8300", "./ssl/https-server.crt","./ssl/https-server.key", "/")
 
 		defer httpApp.DefaultMethod(func(req *http.Request,res http.ResponseWriter){
 			res.Header().Set("Name", "Sudeep Dasgupta")
@@ -122,6 +130,10 @@ Web/RouteList.go
 		    "$id":"[0-9]{2}",
 		    "$name":"[a-z]+",
 		}
+		
+		// to save file in case of multipart form data
+		
+		httpApp.SaveFile(w http.ResponseWriter, file multipart.File, path string, fileChan chan bool)
 
 		// url matching using regular expression and calling multiple middleware with chaining
 		
@@ -174,6 +186,5 @@ Web/RouteList.go
 			},
 		}.Do()
 	}
-
 
 In the above example it inclues all examples for 401, middlewares, url binding, routes, request handling like : json, multipart etc.
