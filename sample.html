@@ -27,31 +27,14 @@
             },
 
             data: JSON.stringify({
-
-                "Login":{
-
-                    "requestPayload":{
-
-                        "username":"sudeep.dasgupta",
-
-                        "password":"kaihiwatari"
-
-                    }
-
-                },
-
-                "GetProfile":{},
-
-                "SchemesMaster":{
-
-                    "requestPayload":{
-
-                        "category":"EQUITY"
-
-                    }
-
-                }
-
+              "Login":{
+                "username":"sudeep.dasgupta",
+                "password":"kaihiwatari"
+              },
+              "GetProfile":{},
+              "SchemesMaster":{
+                "category":"EQUITY"
+              }
             }),
 
             success: function(resultData)
@@ -91,31 +74,14 @@
                   ws.send(
 
                     JSON.stringify({
-
-                        "Login":{
-
-                            "requestPayload":{
-
-                                "username":"sudeep.dasgupta",
-
-                                "password":"kaihiwatari"
-
-                            }
-
-                        },
-
-                        "GetProfile":{},
-
-                        "SchemesMaster":{
-
-                            "requestPayload":{
-
-                                "category":"EQUITY"
-
-                            }
-
-                        }
-
+                      "Login":{
+                        "username":"sudeep.dasgupta",
+                        "password":"kaihiwatari"
+                      },
+                      "GetProfile":{},
+                      "SchemesMaster":{
+                        "category":"EQUITY"
+                      }
                     })
 
                   );
@@ -170,16 +136,12 @@
 
               JSON.stringify({
                 "Login":{
-                  "requestPayload":{
-                    "username":"sudeep.dasgupta",
-                    "password":"kaihiwatari"
-                  }
+                  "username":"sudeep.dasgupta",
+                  "password":"kaihiwatari"
                 },
                 "GetProfile":{},
                 "SchemesMaster":{
-                  "requestPayload":{
-                    "category":"EQUITY"
-                  }
+                  "category":"EQUITY"
                 }
               })
 

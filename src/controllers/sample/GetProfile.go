@@ -1,7 +1,7 @@
 package sample
 
 import(
-	_"fmt"
+	"fmt"
 	"net/http"
 	"cns"
 )
@@ -11,7 +11,9 @@ type getProfileObj struct {
     Msg string `json:"msg"`
 }
 
-func GetProfile(req *http.Request,res http.ResponseWriter, cb chan interface{}){ 
+func GetProfile(input map[string]interface{}, req *http.Request,res http.ResponseWriter, cb chan interface{}){ 
+
+	fmt.Println(input)
 	
 	responseObject := &getProfileObj{
     	Status:true,

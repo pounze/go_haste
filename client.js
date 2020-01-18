@@ -4,32 +4,15 @@ process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = 0
 const client = http2.connect('https://localhost:8100');
 
 var buffer = JSON.stringify({
-
     "Login":{
-
-        "requestPayload":{
-
-            "username":"sudeep.dasgupta",
-
-            "password":"kaihiwatari"
-
-        }
-
+      "username":"sudeep.dasgupta",
+      "password":"kaihiwatari"
     },
-
     "GetProfile":{},
-
     "SchemesMaster":{
-
-        "requestPayload":{
-
-            "category":"EQUITY"
-
-        }
-
+      "category":"EQUITY"
     }
-
-});
+  });
 
 // Must not specify the ':path' and ':scheme' headers
 // for CONNECT requests or an error will be thrown.

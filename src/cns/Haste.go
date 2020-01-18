@@ -875,7 +875,7 @@ func (v *Http) Where(regex map[string]string) ChainAndError {
 */
 
 type Projection struct {
-	Method func(req *http.Request, res http.ResponseWriter, cb chan interface{})
+	Method func(input map[string]interface{}, req *http.Request, res http.ResponseWriter, cb chan interface{})
 	Timeout int32
 }
 
@@ -963,7 +963,20 @@ func (v *Http) ProjectionMethod(req *http.Request,res http.ResponseWriter){
 
 			// invoking method with go routines
 
-	        go projectHM[key].Method(req, res, callbackChan)
+			md, ok := requestHM[key].(map[string]interface{})
+
+			if !ok{
+
+				responseObject := &DefaultResponse{
+			    	Status:false,
+			    	Msg:"Method "+key+" does not contain valid json",
+			    }
+				responseHashMap[key] = responseObject
+
+				continue
+			}
+
+	        go projectHM[key].Method(md, req, res, callbackChan)
 
 	        // checking if context is done
 
@@ -1085,7 +1098,20 @@ func (v *Http) SocketProjection(res http.ResponseWriter, req *http.Request){
 
 				// invoking method for matched method from request payload
 
-		        go projectHM[key].Method(req, res, callbackChan)
+				md, ok := requestHM[key].(map[string]interface{})
+
+				if !ok{
+					
+					responseObject := &DefaultResponse{
+				    	Status:false,
+				    	Msg:"Method "+key+" does not contain valid json",
+				    }
+					responseHashMap[key] = responseObject
+
+					continue
+				}
+
+		        go projectHM[key].Method(md, req, res, callbackChan)
 
 		        select{
 				  case <-ctx.Done():
@@ -1218,7 +1244,20 @@ func handleHttpStreaming(res http.ResponseWriter, req *http.Request) {
 
 			// invoking methods with goroutines
 
-	        go projectHM[key].Method(req, res, callbackChan)
+			md, ok := requestHM[key].(map[string]interface{})
+
+			if !ok{
+				
+				responseObject := &DefaultResponse{
+			    	Status:false,
+			    	Msg:"Method "+key+" does not contain valid json",
+			    }
+				responseHashMap[key] = responseObject
+
+				continue
+			}
+
+	        go projectHM[key].Method(md, req, res, callbackChan)
 
 	        select{
 			  case <-ctx.Done():

@@ -1,7 +1,7 @@
 package sample
 
 import(
-	_"fmt"
+	"fmt"
 	"net/http"
 	"time"
 	"cns"
@@ -12,7 +12,10 @@ type getLoginObj struct {
     Msg string `json:"msg"`
 }
 
-func Login(req *http.Request, res http.ResponseWriter, cb chan interface{}){ 
+func Login(input map[string]interface{}, req *http.Request, res http.ResponseWriter, cb chan interface{}){ 
+
+	fmt.Println(input)
+	fmt.Println(input["username"])
 	
 	time.Sleep(1 * time.Second)
 
